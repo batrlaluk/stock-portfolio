@@ -20,7 +20,7 @@ class StockRegistry:
         self.c.execute('''CREATE TABLE IF NOT EXISTS stocks
             ( stock_id INTEGER NOT NULL, name TEXT NOT NULL UNIQUE, is_etf INTEGER NOT NULL, PRIMARY KEY(stock_id) )''')
         self.c.execute('''CREATE TABLE IF NOT EXISTS quotes
-            ( quote_id INTEGER NOT NULL UNIQUE, date TEXT NOT NULL, close REAL NOT NULL, stock_id NUMERIC NOT NULL, FOREIGN KEY(stock_id) REFERENCES stocks(stock_id), PRIMARY KEY(quote_id) )''')
+            ( quote_id INTEGER NOT NULL UNIQUE, date DATE NOT NULL, close REAL NOT NULL, stock_id NUMERIC NOT NULL, FOREIGN KEY(stock_id) REFERENCES stocks(stock_id), PRIMARY KEY(quote_id) )''')
         self.db.commit()
 
     # Add a row to the models table.
@@ -60,7 +60,7 @@ class StockRegistry:
 
     def getTop10(self, table_name):
         return self.c.execute('SELECT * FROM %s LIMIT 10' % table_name).fetchall()
-
+    
     def numOfRows(self, table_name):
         return self.c.execute('SELECT COUNT(*) FROM %s' % table_name).fetchone()
 
@@ -75,3 +75,22 @@ class StockRegistry:
     # queries considering date will execute fast
     def createIndexForDateQueries(self):
         self.c.execute("CREATE INDEX dateId on quotes(date)")
+        
+    def createForeignKeyIndexOnStockId(self):
+        self.c.execute("CREATE INDEX stock_idx on quotes(stock_id)")
+        
+    def addDailyStockReturnColumn(self):
+        self.c.execute("ALTER TABLE quotes ADD COLUMN daily_return REAL")
+        
+    def calculateDailyStockReturn(self, stock_id):
+        return self.c.execute('''select  (q1.close - q2.close) / q2.close as ret_value ,q1.stock_id, q1.date
+                       from quotes q1 
+                       left join quotes q2 on (q1.stock_id = q2.stock_id and  q1.quote_id = q2.quote_id+1) 
+                       where q1.stock_id = ? and q1.date between ? and ?
+                       order by q1.date''', [stock_id,'2011-01-03','2017-11-10']).fetchall()
+    
+    def inputDailyStockReturn(self, dailtReturnList):
+        self.c.executemany('''UPDATE quotes 
+                       SET daily_return = ?
+                       where stock_id = ? and date = ?;''', dailtReturnList)
+        self.db.commit()
