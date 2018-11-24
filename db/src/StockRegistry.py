@@ -81,5 +81,3 @@ class StockRegistry:
         #c.executemany('INSERT INTO registrations VALUES (?,?,?,?)', registrations)
         #self.db.commit()
 
-    def deleteDatabase(self, databaseName):
-        os.remove(databaseName)
