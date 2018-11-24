@@ -64,6 +64,12 @@ class StockRegistry:
     def numOfRows(self, table_name):
         return self.c.execute('SELECT COUNT(*) FROM %s' % table_name).fetchone()
 
+    def getValidStockIds(self, first_date, last_date):
+        lower_bound_ids = set([tuple[0] for tuple in self.c.execute('SELECT stock_id FROM quotes WHERE date=?', [first_date]).fetchall()])
+        upper_bound_ids = set([tuple[0] for tuple in self.c.execute('SELECT stock_id FROM quotes WHERE date=?', [last_date]).fetchall()])
+
+        return lower_bound_ids.intersection(upper_bound_ids)
+
 
     # Populate the registration and models tables with meaningful data.
     # Ie. carIds must be unique, for any modelId in registration there

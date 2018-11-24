@@ -18,4 +18,7 @@ print(registry.getTop10("quotes"))
 print('Num of rows stocks table:', registry.numOfRows("stocks"))
 print('Num of rows quotes table:', registry.numOfRows("quotes"))
 
+valid_ids = registry.getValidStockIds("2011-01-03", "2017-11-10")
+print(len(valid_ids))
+
 registry.close()
