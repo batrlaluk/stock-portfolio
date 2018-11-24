@@ -94,3 +94,29 @@ class StockRegistry:
                        SET daily_return = ?
                        where stock_id = ? and date = ?;''', dailtReturnList)
         self.db.commit()
+
+    def calculateDailyStockReturnForStocksFromTheTimeRange(self, first_date, last_date ):
+        data_to_update = self.c.execute('''
+        CREATE TEMPORARY TABLE ParentChild AS
+        WITH VALID_STOCK_IDS AS (
+                                    select stock_id from quotes
+                                    where quotes.date = ?
+                                    intersect
+                                    select stock_id from quotes
+                                    where quotes.date = ?
+                                )
+        
+        select (q1.close - q2.close) / q2.close as ret_value ,q1.stock_id, q1.date 
+        from VALID_STOCK_IDS vsi
+        left join quotes q1 on vsi.stock_id = q1.stock_id
+        left join quotes q2 on (q1.stock_id = q2.stock_id and  q1.quote_id = q2.quote_id+1)
+        where q1.date between ? and ?
+        order by q1.date
+                       ''', [first_date,last_date,first_date,last_date]).fetchall()
+        self.c.execute('''DROP TABLE IF EXISTS VALID_STOCK_IDS''')
+        self.db.commit()         
+        return data_to_update
+    
+    def executeCommitStatement(self ):
+        self.db.commit()
+        

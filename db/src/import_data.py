@@ -65,13 +65,8 @@ registry.createIndexForDateQueries()
 registry.createForeignKeyIndexOnStockId()
 registry.addDailyStockReturnColumn()
 print("Statring daily return execution:")
-stock_ids = registry.getValidStockIds("2011-01-03", "2017-11-10")
-print("stock ids len:", len(stock_ids))
-daily_returns = []
-for stock in stock_ids:
-    daily_returns = registry.calculateDailyStockReturn(stock)
-    registry.inputDailyStockReturn(daily_returns)
-    print("current stock id: ", stock)
+daily_returns = registry.calculateDailyStockReturnForStocksFromTheTimeRange("2011-01-03", "2017-11-10")
+registry.inputDailyStockReturn(daily_returns)
 registry.close()
 
 #for file in etfs:
