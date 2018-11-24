@@ -9,7 +9,6 @@ class StockRegistry:
     def __init__(self, databaseName):
         self.db = sqlite3.connect(databaseName)
         self.c = self.db.cursor()
-        self.createTables()
 
     # Clean up the database. You do not need to change this function.
     def close(self):

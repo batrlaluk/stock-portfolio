@@ -10,6 +10,7 @@ os.chdir(r"..")
 
 # 2. pcik name of dictionary !
 registry = StockRegistry("stock_database.sqlite")
+registry.deleteDatabase("stock_database.sqlite")
 registry.createTables()
 
 # 3 import all stocks to the database:
