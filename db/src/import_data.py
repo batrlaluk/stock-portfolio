@@ -4,13 +4,15 @@ import pandas as pd
 import glob, os
 
 
+        
+
 # 1. Set database dictionary - it will be created there!
 
 os.chdir(r"..")
 
 # 2. pcik name of dictionary !
+os.remove("stock_database.sqlite")
 registry = StockRegistry("stock_database.sqlite")
-registry.deleteDatabase("stock_database.sqlite")
 registry.createTables()
 
 # 3 import all stocks to the database:
