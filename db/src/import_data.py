@@ -4,7 +4,7 @@ import pandas as pd
 import glob, os
 
 
-        
+
 
 # 1. Set database dictionary - it will be created there!
 
@@ -59,6 +59,9 @@ for file in etfs:
         quotes['stock_id']=stockId
         tuples = [tuple(x) for x in quotes.values]
         registry.addManyQuotes(tuples)
+
+# Create index for date
+registry.createIndexForDateQueries()
 
 registry.close()
 

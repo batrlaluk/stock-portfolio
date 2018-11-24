@@ -71,13 +71,7 @@ class StockRegistry:
         return lower_bound_ids.intersection(upper_bound_ids)
 
 
-    # Populate the registration and models tables with meaningful data.
-    # Ie. carIds must be unique, for any modelId in registration there
-    # should be a corresponding row in models, etc. You must add at least
-    # 10 rows to each of the two tables.
-    #def addManyStocks(self, stocks):
-        #pass
-        #c.executemany('INSERT INTO models VALUES (?,?,?)', models)
-        #c.executemany('INSERT INTO registrations VALUES (?,?,?,?)', registrations)
-        #self.db.commit()
-
+    # This function should create an index that ensures
+    # queries considering date will execute fast
+    def createIndexForDateQueries(self):
+        self.c.execute("CREATE INDEX dateId on quotes(date)")
