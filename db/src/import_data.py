@@ -4,14 +4,19 @@ import pandas as pd
 import glob, os
 
 
-
+start_date = "2011-01-03"
+end_date = "2017-11-10"
 
 # 1. Set database dictionary - it will be created there!
 
 os.chdir(r"..")
 
 # 2. pcik name of dictionary !
-os.remove("stock_database.sqlite")
+try:
+    os.remove("stock_database.sqlite")
+except:
+    print('No previous database.')
+print('Starting creation of new database: stock_database.sqlite ')  
 registry = StockRegistry("stock_database.sqlite")
 registry.createTables()
 
@@ -65,8 +70,9 @@ registry.createIndexForDateQueries()
 registry.createForeignKeyIndexOnStockId()
 registry.addDailyStockReturnColumn()
 print("Statring daily return execution:")
-daily_returns = registry.calculateDailyStockReturnForStocksFromTheTimeRange("2011-01-03", "2017-11-10")
-registry.inputDailyStockReturn(daily_returns)
+registry.calculateDailyStockReturnForStocksFromTheTimeRange(start_date,end_date)
+print("Statring daily return insertion:")
+registry.inputDailyStockReturn()
 registry.close()
 
 #for file in etfs:

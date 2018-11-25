@@ -89,15 +89,26 @@ class StockRegistry:
                        where q1.stock_id = ? and q1.date between ? and ?
                        order by q1.date''', [stock_id,'2011-01-03','2017-11-10']).fetchall()
     
-    def inputDailyStockReturn(self, dailtReturnList):
+    def inputDailyStockReturn(self):
         self.c.executemany('''UPDATE quotes 
-                       SET daily_return = ?
-                       where stock_id = ? and date = ?;''', dailtReturnList)
+                       SET daily_return = (SELECT DailyReturns.ret_value
+                                           FROM DailyReturns
+                                           WHERE DailyReturns.stock_id = quotes.stock_id
+                                           AND DailyReturns.date = quotes.date
+                                           )
+                       WHERE EXISTS (
+                                       SELECT * 
+                                       FROM DailyReturns
+                                       WHERE DailyReturns.stock_id = quotes.stock_id
+                                       AND DailyReturns.date = quotes.date
+                                      )''')
+        self.db.commit()
+        self.c.execute('''DROP TABLE IF EXISTS DailyReturns''')
         self.db.commit()
 
     def calculateDailyStockReturnForStocksFromTheTimeRange(self, first_date, last_date ):
         data_to_update = self.c.execute('''
-        CREATE TEMPORARY TABLE ParentChild AS
+        CREATE TEMPORARY TABLE DailyReturns AS
         WITH VALID_STOCK_IDS AS (
                                     select stock_id from quotes
                                     where quotes.date = ?
@@ -113,10 +124,8 @@ class StockRegistry:
         where q1.date between ? and ?
         order by q1.date
                        ''', [first_date,last_date,first_date,last_date]).fetchall()
-        self.c.execute('''DROP TABLE IF EXISTS VALID_STOCK_IDS''')
-        self.db.commit()         
         return data_to_update
     
-    def executeCommitStatement(self ):
+    def executeCommitStatement(self):
         self.db.commit()
         
