@@ -90,7 +90,7 @@ class StockRegistry:
                        order by q1.date''', [stock_id,'2011-01-03','2017-11-10']).fetchall()
     
     def inputDailyStockReturn(self):
-        self.c.executemany('''UPDATE quotes 
+        self.c.execute('''UPDATE quotes 
                        SET daily_return = (SELECT DailyReturns.ret_value
                                            FROM DailyReturns
                                            WHERE DailyReturns.stock_id = quotes.stock_id
