@@ -2,7 +2,7 @@
 from StockRegistry import StockRegistry
 import pandas as pd
 import glob, os
-
+from time import time
 
 start_date = "2011-01-03"
 end_date = "2017-11-10"
@@ -16,7 +16,8 @@ try:
     os.remove("stock_database.sqlite")
 except:
     print('No previous database.')
-print('Starting creation of new database: stock_database.sqlite ')  
+print('Starting creation of new database: stock_database.sqlite ') 
+start_time = time() 
 registry = StockRegistry("stock_database.sqlite")
 registry.createTables()
 
@@ -69,10 +70,27 @@ for file in etfs:
 registry.createIndexForDateQueries()
 registry.createForeignKeyIndexOnStockId()
 registry.addDailyStockReturnColumn()
-print("Statring daily return execution:")
+import_time = time()
+print("Import time: " + str(import_time - start_time))
+print("Starting daily return calculation:")
 registry.calculateDailyStockReturnForStocksFromTheTimeRange(start_date,end_date)
-print("Statring daily return insertion:")
+calculation_time = time()
+print("Calculation time: " + str(calculation_time-import_time))
+print("Starting index creation")
+registry.createIndexOnDailyReturnsTempTable()
+print("Starting daily returns insertion ")
 registry.inputDailyStockReturn()
+insertion_time = time()
+print("Insertion time: " + str(insertion_time-calculation_time))
+print("Total process done within time of: "+str(insertion_time-start_time) )
+
+#stock_numbers = registry.calculateDailyStockReturnForStocksFromTheTimeRange(start_date,end_date)
+#no_of_stock_to_update = len(stock_numbers)
+#print("Statring daily return insertion of:" + str(no_of_stock_to_update) +' different stock daily returns')
+
+#for counter, idx in enumerate(stock_numbers,start = 1):
+#    registry.inputDailyStockReturn(idx)
+#    print("Done stock_id: idx")
 registry.close()
 
 #for file in etfs:

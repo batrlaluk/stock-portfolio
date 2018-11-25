@@ -126,6 +126,10 @@ class StockRegistry:
                        ''', [first_date,last_date,first_date,last_date]).fetchall()
         return data_to_update
     
+    def createIndexOnDailyReturnsTempTable(self):
+        self.c.execute(''' CREATE INDEX StockId_Date_idx ON DailyReturns (stock_id, date )''')
+        self.db.commit()
+    
     def executeCommitStatement(self):
         self.db.commit()
         
