@@ -69,30 +69,22 @@ for file in etfs:
 # Create index for date
 registry.createIndexForDateQueries()
 registry.createForeignKeyIndexOnStockId()
+# Alter table to create space for daily returns calculation results
 registry.addDailyStockReturnColumn()
 import_time = time()
-print("Import time: " + str(import_time - start_time))
+print("Import time: " + str(import_time - start_time)+'sec')
 print("Starting daily return calculation:")
+# calculation of the Stock returns  for relevant stock given by start and end date
 registry.calculateDailyStockReturnForStocksFromTheTimeRange(start_date,end_date)
 calculation_time = time()
-print("Calculation time: " + str(calculation_time-import_time))
+print("Calculation time: " + str(calculation_time-import_time)+'sec')
 print("Starting index creation")
+# creation of index to increase update performance
 registry.createIndexOnDailyReturnsTempTable()
 print("Starting daily returns insertion ")
+# Inseriont of obtained results
 registry.inputDailyStockReturn()
 insertion_time = time()
-print("Insertion time: " + str(insertion_time-calculation_time))
-print("Total process done within time of: "+str(insertion_time-start_time) )
-
-#stock_numbers = registry.calculateDailyStockReturnForStocksFromTheTimeRange(start_date,end_date)
-#no_of_stock_to_update = len(stock_numbers)
-#print("Statring daily return insertion of:" + str(no_of_stock_to_update) +' different stock daily returns')
-
-#for counter, idx in enumerate(stock_numbers,start = 1):
-#    registry.inputDailyStockReturn(idx)
-#    print("Done stock_id: idx")
+print("Insertion time: " + str(insertion_time-calculation_time)+'sec')
+print("Total process done within time of: "+str(insertion_time-start_time) +'sec')
 registry.close()
-
-#for file in etfs:
- #   etf_short_name = file.split(".",1)[0]
- #   registry.updateStock(etf_short_name, 1)
