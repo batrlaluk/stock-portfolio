@@ -1,5 +1,5 @@
 import sqlite3
-import os
+import numpy as np
 
 class StockRegistry:
     # Initialize the StockRegistry. The name of the database file used for
@@ -132,4 +132,26 @@ class StockRegistry:
     
     def executeCommitStatement(self):
         self.db.commit()
+        
+    def gethDailyReturnsForRequestedStockIds(self, validStockDict, startDate, endDate):
+        n_rows = 1703
+        tmp_ret = np.empty((n_rows, 4405))
+        count_r = 0
+        count_c = 0
+        for idx, stock_id in validStockDict.items():
+            returns = self.c.execute('''SELECT daily_return FROM quotes  where stock_id = ? and date between ? and ?
+                       order by date''', [stock_id,startDate,endDate]).fetchall()
+            for ret in returns[:n_rows]:
+                tmp_ret[count_r, count_c] = ret[0]
+                count_r += 1
+            count_r = 0
+            count_c += 1
+        return tmp_ret
+    #           stockReturnsList.append([ret[0] for ret in returns[:n_rows]])
+ #       return np.array([np.array(i) for i in stockReturnsList]).T
+        
+        
+        
+        
+        
         

@@ -88,3 +88,7 @@ insertion_time = time()
 print("Insertion time: " + str(insertion_time-calculation_time)+'sec')
 print("Total process done within time of: "+str(insertion_time-start_time) +'sec')
 registry.close()
+
+
+
+
