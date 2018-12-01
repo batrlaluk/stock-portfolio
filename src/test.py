@@ -38,11 +38,10 @@ print("Shape of returns matrix",dailyReturnsMatrix.shape)
 registry.close()
 
 
-n_clust = 5
+n_clust = 10
 cor_mat = Portfolio_Cluster.Correlation_Matrix(dailyReturnsMatrix)
 dist_mat = Portfolio_Cluster.distance_Matrix(cor_mat)
-
-link_mat = Portfolio_Cluster.link(dist_mat)
+link_mat = Portfolio_Cluster.ward_linkage(dist_mat)
 cut_tree = Portfolio_Cluster.cut_tree(link_mat, n_clust)
 
 
