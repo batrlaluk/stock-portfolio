@@ -5,6 +5,7 @@ sys.path.insert(0, '../clustering/Portfolio_Clustering')
 from clustering import Portfolio_Clustering
 import pandas as pd
 import glob, os
+from matplotlib import pyplot as pplot
 
 
 
@@ -40,9 +41,20 @@ registry.close()
 n_clust = 5
 cor_mat = Portfolio_Cluster.Correlation_Matrix(dailyReturnsMatrix)
 dist_mat = Portfolio_Cluster.distance_Matrix(cor_mat)
+
 link_mat = Portfolio_Cluster.link(dist_mat)
 cut_tree = Portfolio_Cluster.cut_tree(link_mat, n_clust)
 
+
+
+# Open a PDF for plotting; units are inches by default
+#pdf("/path/to/a/pdf/file.pdf", width=40, height=15)
+
+# Do some plotting
+#pplot.plot(cut_tree)
+
+# Close the PDF file's associated graphics device (necessary to finalize the output)
+#dev.off()
 
 #print(cor_mat)
 #print("\n")
@@ -51,11 +63,15 @@ cut_tree = Portfolio_Cluster.cut_tree(link_mat, n_clust)
 #print(link_mat)
 #print("\n")
 print(cut_tree)
+
 #print("\n")
-print(clust_id_dict.keys())
-print(clust_id_dict.values())
-print(clust_id_dict[0])
-print(clust_id_dict[4])
-Portfolio_Cluster.plot_dend(link_mat, 0)
-Portfolio_Cluster.plot_dend(link_mat, n_clust=n_clust)
-pplot.show()
+#print(clust_id_dict.keys())
+#print(clust_id_dict.values())
+#print(clust_id_dict[0])
+#print(clust_id_dict[4])
+Portfolio_Cluster.save_dend(link_mat, 0)
+
+
+#pplot.savefig('dendrogram.png')
+Portfolio_Cluster.save_dend_cut(link_mat, n_clust=n_clust)
+#pplot.show()

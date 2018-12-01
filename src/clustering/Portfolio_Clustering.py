@@ -15,28 +15,47 @@ class Portfolio_Cluster:
     # Returns a condensed matrix
     def distance_Matrix(Corr_Mat):
         n, m = np.shape(Corr_Mat)
-        dist_mat = np.empty((n, n))
+        dist_mat = np.zeros((n, m))
         for i in range(0,n):
             for j in range(0,m):
-                dist_mat[i, j] = 1-abs(Corr_Mat[i, j])
+                if(dist_mat[j,i] == 0):
+                    dist_mat[i, j] = 1-abs(Corr_Mat[i, j])
+                else:
+                    dist_mat[i, j] = dist_mat[j,i]
 
         np.fill_diagonal(dist_mat, 0)                   # If not done, the diagonal will contain values very close to 0 instead
+        print(dist_mat.shape)
         return spat_sci.distance.squareform(dist_mat)
 
     # This method computes the "complete" linkage between the specified condensed distance matrix
     # Returns the hierarchical clustering encoded as a linkage matrix (From documentation)
-    def link(Dist_Mat):
+    def link(dist_mat):
         return clust_sci.linkage(dist_mat, method='complete')
 
     # This method plots the dendogram of a linkage matrix. Specify n_clust to cut tree to obtain n_clust amount of
     # clusters on your dendogram plot. Set n_clust = 0 if you wish to see the whole dendogram
-    def plot_dend(link_Mat, n_clust):
-        pplot.figure()
-        dendo = clust_sci.dendrogram(link_mat, p=n_clust, truncate_mode='lastp')
-        pplot.draw()
+    def save_dend(link_mat, n_clust):
+        pplot.figure(figsize=(20,10))
+        fig, ax = pplot.subplots()
+        fig.set_size_inches(30, 15)
+        
+        clust_sci.dendrogram(link_mat, p=n_clust, truncate_mode='lastp')
+        
+        pplot.savefig('dendogram.jpeg', dpi=400)
+        
+        
+    def save_dend_cut(link_mat, n_clust):
+        pplot.figure(figsize=(20,10))
+        fig, ax = pplot.subplots()
+        fig.set_size_inches(30, 15)
+        
+        clust_sci.dendrogram(link_mat, p=n_clust, truncate_mode='lastp')
+        
+        pplot.savefig('dendogram_cut.jpeg', dpi=400)
+    
 
     # Cuts a dendogram tree and return a list of
-    def cut_tree(link_Mat, clust_numb):
+    def cut_tree(link_mat, clust_numb):
         return clust_sci.cut_tree(link_mat, n_clusters= clust_numb)
 
     # This method outputs what elements belong to what cluster in the n-amount of clusters you have chosen when you cut
@@ -44,7 +63,7 @@ class Portfolio_Cluster:
     def find_elements(tree_cut):
         clust_id_dict = {}
         idx = 0
-        for clust_id in cut_tree:
+        for clust_id in tree_cut:
             if clust_id[0] not in clust_id_dict.keys():
                 clust_id_dict[clust_id[0]] = [idx]
             else:
