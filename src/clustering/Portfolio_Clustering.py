@@ -52,31 +52,31 @@ class Portfolio_Cluster:
             idx += 1
         return clust_id_dict
 
-Ret = np.random.rand(100,20)*10
-n_clust = 5
-
-cor_mat = Portfolio_Cluster.Correlation_Matrix(Ret)
-dist_mat = Portfolio_Cluster.distance_Matrix(cor_mat)
-link_mat = Portfolio_Cluster.link(dist_mat)
-cut_tree = Portfolio_Cluster.cut_tree(link_mat, n_clust)
-
-
-
-
-
-
-#print(cor_mat)
-#print("\n")
-#print(dist_mat)
-#print("\n")
-#print(link_mat)
-#print("\n")
-print(cut_tree)
-#print("\n")
-print(clust_id_dict.keys())
-print(clust_id_dict.values())
-print(clust_id_dict[0])
-print(clust_id_dict[4])
-Portfolio_Cluster.plot_dend(link_mat, 0)
-Portfolio_Cluster.plot_dend(link_mat, n_clust=n_clust)
-pplot.show()
+# Ret = np.random.rand(100,20)*10
+# n_clust = 5
+#
+# cor_mat = Portfolio_Cluster.Correlation_Matrix(Ret)
+# dist_mat = Portfolio_Cluster.distance_Matrix(cor_mat)
+# link_mat = Portfolio_Cluster.link(dist_mat)
+# cut_tree = Portfolio_Cluster.cut_tree(link_mat, n_clust)
+#
+#
+#
+#
+#
+#
+# #print(cor_mat)
+# #print("\n")
+# #print(dist_mat)
+# #print("\n")
+# #print(link_mat)
+# #print("\n")
+# print(cut_tree)
+# #print("\n")
+# print(clust_id_dict.keys())
+# print(clust_id_dict.values())
+# print(clust_id_dict[0])
+# print(clust_id_dict[4])
+# Portfolio_Cluster.plot_dend(link_mat, 0)
+# Portfolio_Cluster.plot_dend(link_mat, n_clust=n_clust)
+# pplot.show()
