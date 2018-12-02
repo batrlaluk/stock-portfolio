@@ -60,7 +60,7 @@ class StockRegistry:
 
     def getTop10(self, table_name):
         return self.c.execute('SELECT * FROM %s LIMIT 10' % table_name).fetchall()
-    
+
     def numOfRows(self, table_name):
         return self.c.execute('SELECT COUNT(*) FROM %s' % table_name).fetchone()
 
@@ -75,29 +75,29 @@ class StockRegistry:
     # queries considering date will execute fast
     def createIndexForDateQueries(self):
         self.c.execute("CREATE INDEX dateId on quotes(date)")
-        
+
     def createForeignKeyIndexOnStockId(self):
         self.c.execute("CREATE INDEX stock_idx on quotes(stock_id)")
-        
+
     def addDailyStockReturnColumn(self):
         self.c.execute("ALTER TABLE quotes ADD COLUMN daily_return REAL")
-        
+
     def calculateDailyStockReturn(self, stock_id):
         return self.c.execute('''select  (q1.close - q2.close) / q2.close as ret_value ,q1.stock_id, q1.date
-                       from quotes q1 
-                       left join quotes q2 on (q1.stock_id = q2.stock_id and  q1.quote_id = q2.quote_id+1) 
+                       from quotes q1
+                       left join quotes q2 on (q1.stock_id = q2.stock_id and  q1.quote_id = q2.quote_id+1)
                        where q1.stock_id = ? and q1.date between ? and ?
                        order by q1.date''', [stock_id,'2011-01-03','2017-11-10']).fetchall()
-    
+
     def inputDailyStockReturn(self):
-        self.c.execute('''UPDATE quotes 
+        self.c.execute('''UPDATE quotes
                        SET daily_return = (SELECT DailyReturns.ret_value
                                            FROM DailyReturns
                                            WHERE DailyReturns.stock_id = quotes.stock_id
                                            AND DailyReturns.date = quotes.date
                                            )
                        WHERE EXISTS (
-                                       SELECT * 
+                                       SELECT *
                                        FROM DailyReturns
                                        WHERE DailyReturns.stock_id = quotes.stock_id
                                        AND DailyReturns.date = quotes.date
@@ -116,8 +116,8 @@ class StockRegistry:
                                     select stock_id from quotes
                                     where quotes.date = ?
                                 )
-        
-        select (q1.close - q2.close) / q2.close as ret_value ,q1.stock_id, q1.date 
+
+        select (q1.close - q2.close) / q2.close as ret_value ,q1.stock_id, q1.date
         from VALID_STOCK_IDS vsi
         left join quotes q1 on vsi.stock_id = q1.stock_id
         left join quotes q2 on (q1.stock_id = q2.stock_id and  q1.quote_id = q2.quote_id+1)
@@ -125,14 +125,14 @@ class StockRegistry:
         order by q1.date
                        ''', [first_date,last_date,first_date,last_date]).fetchall()
         return data_to_update
-    
+
     def createIndexOnDailyReturnsTempTable(self):
         self.c.execute(''' CREATE INDEX StockId_Date_idx ON DailyReturns (stock_id, date )''')
         self.db.commit()
-    
+
     def executeCommitStatement(self):
         self.db.commit()
-        
+
     def gethDailyReturnsForRequestedStockIds(self, validStockDict, startDate, endDate):
         n_rows = 1703
         tmp_ret = np.empty((n_rows, 4405))
@@ -142,16 +142,13 @@ class StockRegistry:
             returns = self.c.execute('''SELECT daily_return FROM quotes  where stock_id = ? and date between ? and ?
                        order by date''', [stock_id,startDate,endDate]).fetchall()
             for ret in returns[:n_rows]:
-                tmp_ret[count_r, count_c] = ret[0]
+                tmp_ret[count_r, idx] = ret[0]
                 count_r += 1
             count_r = 0
             count_c += 1
         return tmp_ret
     #           stockReturnsList.append([ret[0] for ret in returns[:n_rows]])
  #       return np.array([np.array(i) for i in stockReturnsList]).T
-        
-        
-        
-        
-        
-        
+
+    def getStockById(self, id):
+        return self.c.execute(''' SELECT * from stocks WHERE stock_id = ? ''', [id]).fetchall()
