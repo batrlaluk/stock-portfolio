@@ -1,9 +1,5 @@
-from db.StockRegistry import StockRegistry
-from clustering.Portfolio_Clustering import Portfolio_Cluster, getTopStockFromStockList
-import sys
-import scipy.stats as stat
-sys.path.insert(0, '../clustering/Portfolio_Clustering')
-from clustering import Portfolio_Clustering
+from src.db.StockRegistry import StockRegistry
+from src.clustering.Portfolio_Clustering import Portfolio_Cluster, getTopStockFromStockList
 import pandas as pd
 import glob, os
 from matplotlib import pyplot as pplot
@@ -17,7 +13,7 @@ start_date = "2011-01-03"
 end_date = "2017-11-10"
 
 # 2. pcik name of dictionary !
-registry = StockRegistry("stock_database.sqlite")
+registry = StockRegistry("C:/Users/Ejer/Dropbox/UNI/7. Semester/Computational Tools for Data Science/stock-portfolio/src/db/stock_database.sqlite")
 
 # Get 10 stocks
 print(registry.getTop10("stocks"))

@@ -3,6 +3,7 @@ import scipy.stats as sci
 import scipy.spatial as spat_sci
 import scipy.cluster.hierarchy as clust_sci
 from matplotlib import pyplot as pplot
+from numba import jit
 
 class Portfolio_Cluster:
 
@@ -87,6 +88,7 @@ class Portfolio_Cluster:
             returns = daily_returns[:,i]
             exp_ret[i] = (geo_mean(returns) - risk_free) / (np.std(returns - risk_free) * np.sqrt(252))
         return exp_ret
+
 
     def getTopStockFromAllClusters(cluster_id_dict, sharp_arr):
         res = [getTopStockFromStockList(cluster_id_dict[cluster_id], sharp_arr) for cluster_id in cluster_id_dict]
