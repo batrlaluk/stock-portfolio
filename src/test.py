@@ -34,11 +34,9 @@ validStockDict = dict()
 for idx, stock_id in enumerate(valid_ids):
     validStockDict[idx] = stock_id
 
-# -------------------------------------------------------- Check this !!! -----------------------------------------------------------------------------------------------------------
-# TODO: stock_id 8193 corresponds to fmy.us.txt which doesn't actually contain all the data from 2011
+# just checking if the selected asset is really valid
 print('first valid stock id:', validStockDict[0])
 print('stock related to that stock id:', registry.getStockById(validStockDict[0]))
-# -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 dailyReturnsMatrix = registry.gethDailyReturnsForRequestedStockIds( validStockDict, start_date, end_date)
 
@@ -61,35 +59,14 @@ print('sharp ratio size: %r; array: %r' % (sharp_arr.size, sharp_arr))
 # selected_stocks is a list of N stocks, each from one of N clusters, in a form (stock id, sharpe value)
 selected_stocks = Portfolio_Cluster.getTopStockFromAllClusters(clust_id_dict, sharp_arr)
 print('selected stocks (id, sharp):', selected_stocks)
+print('selected stocks:', [registry.getStockById(validStockDict[selected_stocks[i][0]]) for i in range(len(selected_stocks))])
 
 
 registry.close()
 
-# Open a PDF for plotting; units are inches by default
-#pdf("/path/to/a/pdf/file.pdf", width=40, height=15)
 
-# Do some plotting
-#pplot.plot(cut_tree)
 
-# Close the PDF file's associated graphics device (necessary to finalize the output)
-#dev.off()
-
-#print(cor_mat)
-#print("\n")
-#print(dist_mat)
-#print("\n")
-#print(link_mat)
-#print("\n")
-# print(cut_tree)
-
-#print("\n")
-# print(clust_id_dict.keys())
-# print(clust_id_dict.values())
-# print(clust_id_dict[0])
-# print(clust_id_dict[4])
 Portfolio_Cluster.save_dend(link_mat, 0)
 
-
-#pplot.savefig('dendrogram.png')
 Portfolio_Cluster.save_dend_cut(link_mat, n_clust=n_clust)
 #pplot.show()
