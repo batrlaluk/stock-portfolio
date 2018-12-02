@@ -29,9 +29,19 @@ class Portfolio_Cluster:
 
     # This method computes the "complete" linkage between the specified condensed distance matrix
     # Returns the hierarchical clustering encoded as a linkage matrix (From documentation)
-    def link(dist_mat):
+    def complete_linkage(dist_mat):
         return clust_sci.linkage(dist_mat, method='complete')
 
+    def single_linkage(dist_mat):
+        return clust_sci.linkage(dist_mat, method='single')
+    
+    def average_linkage(dist_mat):
+        return clust_sci.linkage(dist_mat, method='average')
+    
+    def ward_linkage(dist_mat):
+        return clust_sci.linkage(dist_mat, method='ward')
+
+    
     # This method plots the dendogram of a linkage matrix. Specify n_clust to cut tree to obtain n_clust amount of
     # clusters on your dendogram plot. Set n_clust = 0 if you wish to see the whole dendogram
     def save_dend(link_mat, n_clust):

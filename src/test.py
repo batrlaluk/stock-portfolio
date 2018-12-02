@@ -45,11 +45,10 @@ dailyReturnsMatrix = registry.gethDailyReturnsForRequestedStockIds( validStockDi
 print("Shape of returns matrix:", type(dailyReturnsMatrix), type(dailyReturnsMatrix[0][0]), dailyReturnsMatrix.shape)
 
 
-n_clust = 5
+n_clust = 10
 cor_mat = Portfolio_Cluster.Correlation_Matrix(dailyReturnsMatrix)
 dist_mat = Portfolio_Cluster.distance_Matrix(cor_mat)
-
-link_mat = Portfolio_Cluster.link(dist_mat)
+link_mat = Portfolio_Cluster.ward_linkage(dist_mat)
 cut_tree = Portfolio_Cluster.cut_tree(link_mat, n_clust)
 clust_id_dict = Portfolio_Cluster.find_elements(cut_tree)
 sharp_arr = Portfolio_Cluster.compute_sharp_ratios(dailyReturnsMatrix, 0.027)
