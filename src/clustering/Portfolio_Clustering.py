@@ -38,21 +38,21 @@ class Portfolio_Cluster:
         pplot.figure(figsize=(20,10))
         fig, ax = pplot.subplots()
         fig.set_size_inches(30, 15)
-        
+
         clust_sci.dendrogram(link_mat, p=n_clust, truncate_mode='lastp')
-        
+
         pplot.savefig('dendogram.jpeg', dpi=400)
-        
-        
+
+
     def save_dend_cut(link_mat, n_clust):
         pplot.figure(figsize=(20,10))
         fig, ax = pplot.subplots()
         fig.set_size_inches(30, 15)
-        
+
         clust_sci.dendrogram(link_mat, p=n_clust, truncate_mode='lastp')
-        
+
         pplot.savefig('dendogram_cut.jpeg', dpi=400)
-    
+
 
     # Cuts a dendogram tree and return a list of
     def cut_tree(link_mat, clust_numb):
@@ -70,6 +70,33 @@ class Portfolio_Cluster:
                 clust_id_dict[clust_id[0]].append(idx)
             idx += 1
         return clust_id_dict
+
+    def compute_sharp_ratios(daily_returns, risk_free):
+        exp_ret = np.zeros(daily_returns.shape[1])
+        for i in range(daily_returns.shape[1]):
+            returns = daily_returns[:,i]
+            exp_ret[i] = (geo_mean(returns) - risk_free) / (np.std(returns - risk_free) * np.sqrt(252))
+        return exp_ret
+
+    def getTopStockFromAllClusters(cluster_id_dict, sharp_arr):
+        res = [getTopStockFromStockList(cluster_id_dict[cluster_id], sharp_arr) for cluster_id in cluster_id_dict]
+        return res
+
+
+def getTopStockFromStockList(stock_list, sharp_arr):
+    max_id = stock_list[0]
+    max_sharpe = sharp_arr[max_id]
+
+    for idx in stock_list[1:]:
+        if sharp_arr[idx] > max_sharpe:
+            max_id = idx
+            max_sharpe = sharp_arr[idx]
+
+    return (max_id, max_sharpe)
+
+def geo_mean(a):
+    arr = a + 1
+    return (arr.prod()**(1.0/len(a)))**252 -1
 
 # Ret = np.random.rand(100,20)*10
 # n_clust = 5
