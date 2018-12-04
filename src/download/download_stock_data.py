@@ -26,6 +26,7 @@ def draw_multiple_stock_data(stock_names,start_date,end_date):
     
     data = yf.download(stock_names,start_date,end_date)
     data.Close.plot()
+    plt.savefig("validation_test.png", dpi=400)
     plt.show()
     
     

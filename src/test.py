@@ -1,19 +1,21 @@
-from src.db.StockRegistry import StockRegistry
-from src.clustering.Portfolio_Clustering import Portfolio_Cluster, getTopStockFromStockList
+from db.StockRegistry import StockRegistry
+from clustering.Portfolio_Clustering import Portfolio_Cluster, getTopStockFromStockList
 import pandas as pd
 import glob, os
 from matplotlib import pyplot as pplot
 import numpy as np
+from download.download_stock_data import *
 
 
 
 
-
+simulation_start_date = "2017-11-11"
+simulation_end_date = "2018-11-10"
 start_date = "2011-01-03"
 end_date = "2017-11-10"
 
 # 2. pcik name of dictionary !
-registry = StockRegistry("C:/Users/Ejer/Dropbox/UNI/7. Semester/Computational Tools for Data Science/stock-portfolio/src/db/stock_database.sqlite")
+registry = StockRegistry("stock_database.sqlite")
 
 # Get 10 stocks
 print(registry.getTop10("stocks"))
@@ -58,9 +60,8 @@ print('selected stocks (id, sharp):', selected_stocks)
 print('selected stocks:', [registry.getStockById(validStockDict[selected_stocks[i][0]]) for i in range(len(selected_stocks))])
 
 
-registry.close()
-
-
+sim_data_for_icked_stocks = get_close_values_of_the_stocks(selected_stocks[],simulation_start_date,simulation_end_date )
+draw_multiple_stock_data(names,simulation_start_date,simulation_end_date )
 
 Portfolio_Cluster.save_dend(link_mat, 0)
 

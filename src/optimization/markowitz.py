@@ -2,9 +2,10 @@ import numpy as np
 import scipy.stats as stat
 import cvxopt.solvers as solvers
 from cvxopt import matrix
-from src.clustering.Portfolio_Clustering import Portfolio_Cluster
-from src.db.StockRegistry import StockRegistry
+from clustering.Portfolio_Clustering import Portfolio_Cluster
+from db.StockRegistry import StockRegistry
 from matplotlib import pyplot as plt
+from download.download_stock_data import get_close_values_of_the_stocks, draw_multiple_stock_data
 
 # Computes the annualized covariance matrix of the specified stock daily returns
 def compute_covariance(daily_Returns):
@@ -40,7 +41,7 @@ start_date = "2011-01-03"
 end_date = "2017-11-10"
 
 # 2. pcik name of dictionary !
-registry = StockRegistry("C:/Users/Ejer/Dropbox/UNI/7. Semester/Computational Tools for Data Science/stock-portfolio/src/db/stock_database.sqlite")
+registry = StockRegistry("stock_database.sqlite")
 
 valid_ids = registry.getValidStockIds(start_date, end_date)
 
@@ -115,5 +116,12 @@ plt.xlabel('Risk')
 plt.ylabel('Return')
 plt.title('Efficient Frontier of found assets w/o shortselling and risk free asset')
 plt.savefig('efficientfrontier_cut.png', dpi=400)
+
+simulation_start_date = "2017-11-11"
+simulation_end_date = "2018-11-10"
+
+sim_data_for_icked_stocks = get_close_values_of_the_stocks(tickers,simulation_start_date,simulation_end_date )
+draw_multiple_stock_data(tickers,simulation_start_date,simulation_end_date )
+
 
 
