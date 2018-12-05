@@ -5,6 +5,15 @@ import scipy.cluster.hierarchy as clust_sci
 from matplotlib import pyplot as pplot
 from numba import jit
 
+import matplotlib.pylab as pylab
+params = {'legend.fontsize': 'x-large',
+          'figure.figsize': (20, 8),
+         'axes.labelsize': 'x-large',
+         'axes.titlesize':'x-large',
+         'xtick.labelsize':'x-large',
+         'ytick.labelsize':'x-large'}
+pylab.rcParams.update(params)
+
 class Portfolio_Cluster:
 
     # This method computes the spearman correlation coefficient matrix
@@ -56,12 +65,11 @@ class Portfolio_Cluster:
 
 
     def save_dend_cut(link_mat, n_clust):
-        pplot.figure(figsize=(20,10))
+
         fig, ax = pplot.subplots()
-        fig.set_size_inches(30, 15)
-
-        clust_sci.dendrogram(link_mat, p=n_clust, truncate_mode='lastp')
-
+        pplot.xlabel('Number of stocks in cluster', fontsize=24)
+        pplot.ylabel('Metric value of correlation', fontsize=24)
+        clust_sci.dendrogram(link_mat, p=n_clust, truncate_mode='lastp', leaf_font_size='20')
         pplot.savefig('dendogram_cut.jpeg', dpi=400)
 
 

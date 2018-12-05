@@ -5,7 +5,15 @@ from cvxopt import matrix
 from clustering.Portfolio_Clustering import Portfolio_Cluster
 from db.StockRegistry import StockRegistry
 from matplotlib import pyplot as plt
-from download.download_stock_data import get_close_values_of_the_stocks, draw_multiple_stock_data
+from download.download_stock_data import get_close_values_of_the_stocks, draw_multiple_stock_data,get_market_performance
+
+
+
+'''
+#######################
+# Optimization part:
+#######################
+'''
 
 # Computes the annualized covariance matrix of the specified stock daily returns
 def compute_covariance(daily_Returns):
@@ -15,6 +23,9 @@ def compute_covariance(daily_Returns):
 # Computes the annualized expected returns of the specified stock daily returns
 def compute_expected_returns(daily_Returns):
     return np.power(stat.gmean(1+ daily_Returns, axis=0), 252) - 1
+
+def compute_expected_returns_axis_1(daily_Returns):
+    return np.power(stat.gmean(1+ daily_Returns, axis=1), 252) - 1
 
 def compute_efficientFrontier(Cov_Mat, expected_Returns, specified_Return):
     n, m = np.shape(Cov_Mat)
@@ -51,27 +62,37 @@ for idx, stock_id in enumerate(valid_ids):
 dailyReturnsMatrix = registry.gethDailyReturnsForRequestedStockIds(validStockDict, start_date, end_date)
 
 
-n_clust = 15
+n_clust = 25
 risk_free_rate = 0.027
 cor_mat = Portfolio_Cluster.Correlation_Matrix(dailyReturnsMatrix)
 dist_mat = Portfolio_Cluster.distance_Matrix(cor_mat)
-link_mat = Portfolio_Cluster.ward_linkage(dist_mat)
+link_mat = Portfolio_Cluster.complete_linkage(dist_mat)
 cut_tree = Portfolio_Cluster.cut_tree(link_mat, n_clust)
 clust_id_dict = Portfolio_Cluster.find_elements(cut_tree)
 sharp_arr = Portfolio_Cluster.compute_sharp_ratios(dailyReturnsMatrix, risk_free_rate)
 selected_stocks = Portfolio_Cluster.getTopStockFromAllClusters(clust_id_dict, sharp_arr)
+
+ids = []
 
 # The following code is to test the getTopStockFromStockList and getTopStockFromAllClusters methods
 # print('top stock should be 3. The result is: ', getTopStockFromStockList([0,1,4], np.array([-1,3,5,12,1,0,8])))
 # print('top stock by cluster should be [(2, 5), (3, 12)]. The result is: ', Portfolio_Cluster.getTopStockFromAllClusters({0: [0,1,2], 1: [3, 4]}, np.array([-1,3,5,12,1,0,8])))
 
 # selected_stocks is a list of N stocks, each from one of N clusters, in a form (stock id, sharpe value)
-selected_stocks = Portfolio_Cluster.getTopStockFromAllClusters(clust_id_dict, sharp_arr)
+#selected_stocks = Portfolio_Cluster.getTopStockFromAllClusters(clust_id_dict, sharp_arr)
 
 
 id_list = []
 for id in selected_stocks:
     id_list.append(id[0])
+
+ticker_correlation = np.zeros((n_clust,n_clust))
+for id, value in enumerate(id_list):
+    for id2, value2 in enumerate(id_list):
+        ticker_correlation[id][id2] = cor_mat[value][value2]
+    
+print('Correlation mean for 25 stocks:', np.mean(ticker_correlation))
+# ward correlation: 0.050722497829020441
 
 tickers = [registry.getStockById(validStockDict[i])[0][1] for i in id_list]
 
@@ -117,11 +138,61 @@ plt.ylabel('Return')
 plt.title('Efficient Frontier of found assets w/o shortselling and risk free asset')
 plt.savefig('efficientfrontier_cut.png', dpi=400)
 
+
+
+'''
+#######################
+# Simulation part:
+#######################
+'''
+
 simulation_start_date = "2017-11-11"
 simulation_end_date = "2018-11-10"
 
-sim_data_for_icked_stocks = get_close_values_of_the_stocks(tickers,simulation_start_date,simulation_end_date )
-draw_multiple_stock_data(tickers,simulation_start_date,simulation_end_date )
+# weights for each portfolio calculation:
+
+gmv_port = port_weights[:, np.argmin(port_risk)]
+max_ret_port = port_weights[:, np.argmax(port_rets)]
+eq_weight_port = np.array([1/n_clust] * n_clust).reshape((n_clust, 1))
+max_SR_port = port_weights[:, np.argmax((np.array(port_rets) - risk_free_rate)/ np.array(port_risk).reshape((865,)))]
+
+# validation : it shoudl sum up all to 1.0
+# max_SR_port.sum()
+
+# download market data for simulation:
+market_daily_close_values = get_market_performance(simulation_start_date, simulation_end_date )
+# calculate daily returns
+#market_daily_returns = np.diff(market_daily_close_values)
+# normalizing daily returns data
+normilized_market_returns = np.divide(np.diff(np.array(market_daily_close_values)),np.array(market_daily_close_values)[:-1])
+
+#download efficient frontier portfolio daily returns for smulation:
+
+portfolio_daily_close_values = get_close_values_of_the_stocks(tickers,simulation_start_date,simulation_end_date )
+
+# draw seperate stock from efficient frontier
+#draw_multiple_stock_data(tickers,simulation_start_date,simulation_end_date )
+
+normilized_portfolio_daily_returns = np.zeros((251,n_clust)) 
+
+for g, column in enumerate(portfolio_daily_close_values, start=0):
+    tmp = portfolio_daily_close_values[column]
+    normilized_returns_from_stock = np.divide(np.diff(np.array(tmp)),np.array(tmp)[:-1])
+    normilized_portfolio_daily_returns[:,g] = normilized_returns_from_stock*max_SR_port[g]
+# nan where was division by 0
+np.nan_to_num(normilized_portfolio_daily_returns, copy=False)
+
+plt.figure(figsize=(20, 9))
+plt.xlabel('Simulation days')
+plt.ylabel('Normalized return')
+plt.title('Normalized portfolio simulation with comparison to P&B 500')
+
+plt.plot(np.cumsum(normilized_portfolio_daily_returns.sum(axis=1)), label='Efficient Frontier' )
+plt.plot(np.cumsum(normilized_market_returns), label='P&B 500')
+
+#plt.plot(np.cumsum(np.diff(np.array(ddd), np.array(ddd)[:-1])))
+plt.savefig('portfolio_simulation.png', dpi=400)
+plt.show()
 
 
 

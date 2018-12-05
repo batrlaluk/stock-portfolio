@@ -41,7 +41,7 @@ dailyReturnsMatrix = registry.gethDailyReturnsForRequestedStockIds( validStockDi
 print("Shape of returns matrix:", type(dailyReturnsMatrix), type(dailyReturnsMatrix[0][0]), dailyReturnsMatrix.shape)
 
 
-n_clust = 10
+n_clust = 25
 cor_mat = Portfolio_Cluster.Correlation_Matrix(dailyReturnsMatrix)
 dist_mat = Portfolio_Cluster.distance_Matrix(cor_mat)
 link_mat = Portfolio_Cluster.ward_linkage(dist_mat)
@@ -58,10 +58,6 @@ print('sharp ratio size: %r; array: %r' % (sharp_arr.size, sharp_arr))
 selected_stocks = Portfolio_Cluster.getTopStockFromAllClusters(clust_id_dict, sharp_arr)
 print('selected stocks (id, sharp):', selected_stocks)
 print('selected stocks:', [registry.getStockById(validStockDict[selected_stocks[i][0]]) for i in range(len(selected_stocks))])
-
-
-sim_data_for_icked_stocks = get_close_values_of_the_stocks(selected_stocks[],simulation_start_date,simulation_end_date )
-draw_multiple_stock_data(names,simulation_start_date,simulation_end_date )
 
 Portfolio_Cluster.save_dend(link_mat, 0)
 
