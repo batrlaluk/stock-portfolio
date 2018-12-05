@@ -2,6 +2,8 @@
 
 import matplotlib.pyplot as plt
 import fix_yahoo_finance as yf  
+import pylab as pylab
+from matplotlib.font_manager import FontProperties
 
 default_start_date = '2017-10-12'
 default_end_date = '2018-10-11'
@@ -21,12 +23,12 @@ def draw_stock_data(stock_name,start_date,end_date):
     data.Close.plot()
     plt.show()
 
-
 def draw_multiple_stock_data(stock_names,start_date,end_date):
     
     data = yf.download(stock_names,start_date,end_date)
-    data.Close.plot()
-    plt.savefig("validation_test.png", dpi=400)
+    data.Close.plot(figsize=(20, 12))
+    plt.legend(bbox_to_anchor=(1.04, 1), ncol=1, loc="upper left", borderaxespad=0.)
+    plt.savefig("portfolio_simulation.png", dpi=400)
     plt.show()
     
     
@@ -52,3 +54,8 @@ def get_adjusted_close_values_of_the_stocks(stock_names,start_date,end_date):
     data = yf.download(stock_names,start_date,end_date)
     return data['Adj Close']
 
+def get_market_performance(start_date, end_date):
+    
+    data = data = yf.download('^GSPC', start_date, end_date )
+    return data['Close']
+    
