@@ -1,5 +1,5 @@
 
-from StockRegistry import StockRegistry
+from src.db.StockRegistry import StockRegistry
 import pandas as pd
 import glob, os
 from time import time
